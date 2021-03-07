@@ -8,6 +8,8 @@ EXPOSE 80
 # ricordarsi di mappare sempre :
 #    /var/lib/mysql
 #    /var/www/html/filestore
+#
+# Attenzione su Windows WSL2 mysql non funziona correttamente, utilizzare i volumi per questo mapping
 
 # aggiornamento repository
 RUN apt-get update
