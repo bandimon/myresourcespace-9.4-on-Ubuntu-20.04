@@ -2,6 +2,9 @@ FROM ubuntu:20.04
 
 MAINTAINER Diego Picciani <*bandi*mon*@gmail.com>  (please remove *)
 
+EXPOSE 22
+EXPOSE 80
+
 # ricordarsi di mappare sempre :
 #    /var/lib/mysql
 #    /var/www/html/filestore
@@ -11,7 +14,7 @@ RUN apt-get update
 
 #installazione SSH e utility APT
 #RUN apt-get install -qy ssh software-properties-common
-RUN DEBIAN_FRONTEND=noninteractive apt-get install --assume-yes ssh software-properties-common
+RUN DEBIAN_FRONTEND=noninteractive apt-get install --assume-yes ssh rsyslog software-properties-common
 
 #configurazione SSH ed impostazione password a root
 RUN echo 'root:root' |chpasswd
@@ -21,7 +24,7 @@ RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
 #installazione Apache, MySQL, PHP e tutte le utility necessarie
 #RUN add-apt-repository ppa:mc3man/trusty-media
 RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install --assume-yes vim nano less mc sudo unoconv imagemagick apache2 mariadb-server subversion inkscape ghostscript antiword poppler-utils postfix libimage-exiftool-perl cron wget php php-dev php-gd php-mysql php-mbstring php-zip libapache2-mod-php ffmpeg libgs-dev antiword zip python3-uno libreoffice-writer libreoffice-draw libreoffice-calc libreoffice-impress libreoffice-base-core libreoffice-core libreoffice-pdfimport libreoffice-avmedia-backend-gstreamer libreoffice-math libglu1-mesa
+RUN DEBIAN_FRONTEND=noninteractive apt-get install --assume-yes vim nano less mc sudo unoconv imagemagick apache2 mariadb-server subversion inkscape ghostscript antiword poppler-utils postfix libimage-exiftool-perl cron wget php php-dev php-gd php-mysql php-curl php-mbstring php-zip libapache2-mod-php ffmpeg libgs-dev antiword zip python3-uno libreoffice-writer libreoffice-draw libreoffice-calc libreoffice-impress libreoffice-base-core libreoffice-core libreoffice-pdfimport libreoffice-avmedia-backend-gstreamer libreoffice-math libglu1-mesa
  
 #configurazione PHP
 RUN sed -i -e "s/upload_max_filesize\s*=\s*2M/upload_max_filesize = 8G/g" /etc/php/7.4/apache2/php.ini
@@ -104,6 +107,8 @@ RUN echo '30 4 * * * /backupdb.sh >> /var/log/cron.log 2>&1' >> /var/spool/cron/
 RUN echo '00 4 * * * /resourcespacetask.sh >> /var/log/cron.log 2>&1' >> /var/spool/cron/crontabs/root
 RUN chmod 600 /var/spool/cron/crontabs/root
 RUN chown root.crontab /var/spool/cron/crontabs/root
+RUN chmod 777 /backupdb.sh
+RUN chmod 777 /resourcespacetask.sh
 
 #copio lo script di run.sh
 COPY run.sh /run.sh
