@@ -13,8 +13,8 @@ service apache2 start
 mysqladmin --silent --wait=30 ping || exit 1
 #mysql -e "CREATE DATABASE resourcespace CHARACTER SET = 'latin1' COLLATE = 'latin1_general_ci';"
 mysql -e "CREATE DATABASE resourcespace;"
-mysql -p resourcespace -e  "CREATE USER 'resourcespacerw'@'localhost' IDENTIFIED BY 'resourcespacerw'; GRANT ALL PRIVILEGES ON resourcespace.* To 'resourcespacerw'@'localhost';"
-mysql -p resourcespace -e  "CREATE USER 'resourcespacero'@'localhost' IDENTIFIED BY 'resourcespacero'; GRANT ALL PRIVILEGES ON resourcespace.* To 'resourcespacero'@'localhost';"
+mysql -e  "CREATE USER 'resourcespacerw'@'localhost' IDENTIFIED BY 'resourcespacerw'; GRANT ALL PRIVILEGES ON resourcespace.* To 'resourcespacerw'@'localhost';"
+mysql -e  "CREATE USER 'resourcespacero'@'localhost' IDENTIFIED BY 'resourcespacero'; GRANT ALL PRIVILEGES ON resourcespace.* To 'resourcespacero'@'localhost';"
 if [ ! -d /var/www/html/filestore/system ]; then
 	cd /var/www/html
 	rm index.*
@@ -24,4 +24,4 @@ if [ ! -d /var/www/html/filestore/system ]; then
 fi
 cd /
 cron
-exec /bin/bash -c "trap : TERM INT; sleep infinity & wait"
+exec /bin/bash -c "trap : TERM INT; sleep infinity & wait" 
