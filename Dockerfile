@@ -2,14 +2,18 @@ FROM ubuntu:20.04
 
 MAINTAINER Diego Picciani <*bandi*mon*@gmail.com>  (please remove *)
 
-EXPOSE 22
-EXPOSE 80
-
+# SSH accessibile con root/root
+# MYSQL localhost accessibile con
+#   RW : resourcespacerw:resourcespacerw
+#   RO :  resourcespacero:resourcespacero
+#
 # ricordarsi di mappare sempre :
-#    /var/lib/mysql
+#    /backupdb
 #    /var/www/html/filestore
 #
-# Attenzione su Windows WSL2 mysql non funziona correttamente, utilizzare i volumi per questo mapping
+# IMPORTANTE!!!!!
+# In caso di upgrade ricordarsi di copia config.php da /backupdb a /var/www/html/include PRIMA dell'esecuzione di CRON altrimenti si perde la configurazione!!!!!
+#
 
 # aggiornamento repository
 RUN apt-get update
@@ -90,19 +94,12 @@ RUN echo '$collection_download_settings[0]["extension"] = "zip";' >> /var/www/ht
 RUN echo '$collection_download_settings[0]["arguments"] = "-j";' >> /var/www/html.first/include/config.new_installs.php
 RUN echo '$collection_download_settings[0]["mime"] = "application/zip";' >> /var/www/html.first/include/config.new_installs.php
 
-# aggiungo il processo cron per il savataggio del db
-#RUN echo '#!/bin/bash' > /etc/cron.hourly/backupdb.sh
-#RUN echo 'mysqldump resourcespace | gzip -9 > /var/lib/mysql/resourcespace.sql.gz' >> /etc/cron.hourly/backupdb.sh
-#RUN chmod 777  /etc/cron.hourly/backupdb.sh
-
-# aggiungo il processo cron per il processing automatico di resourcespace
-#RUN echo '#!/bin/bash' > /etc/cron.daily/resourcespacetask.sh
-#RUN echo 'wget http://localhost/batch/cron.php > /tmp/resourcespacetask.lastrun.log' >> /etc/cron.daily/resourcespacetask.sh
-#RUN chmod 777  /etc/cron.daily/resourcespacetask.sh
-
 # aggiungo il processo cron per il savataggio del db e processing automatico di resourcespace
+RUN mkdir /backupdb
+RUN chmod 666 /backupdb
 RUN echo '#!/bin/bash' > /backupdb.sh
 RUN echo 'mysqldump resourcespace | gzip -9 > /var/lib/mysql/resourcespace.sql.gz' >> /backupdb.sh
+RUN echo 'cp /var/lib/htm/include/config.php /backupdb' >> /backupdb.sh
 RUN echo '#!/bin/bash' > /resourcespacetask.sh
 RUN echo 'wget http://localhost/batch/cron.php > /tmp/resourcespacetask.lastrun.log' >> /resourcespacetask.sh
 RUN echo '30 4 * * * /backupdb.sh >> /var/log/cron.log 2>&1' >> /var/spool/cron/crontabs/root
