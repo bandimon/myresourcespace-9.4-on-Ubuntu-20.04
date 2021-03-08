@@ -9,7 +9,7 @@ MAINTAINER Diego Picciani <*bandi*mon*@gmail.com>  (please remove *)
 #
 # ricordarsi di mappare sempre :
 #    /backupdb
-#    /var/www/html/filestore
+#    /var/www/html/filestore oppure l'intera /var/www/html
 #
 # IMPORTANTE!!!!!
 # In caso di upgrade ricordarsi di copia config.php da /backupdb a /var/www/html/include PRIMA dell'esecuzione di CRON altrimenti si perde la configurazione!!!!!
@@ -30,7 +30,7 @@ RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
 #installazione Apache, MySQL, PHP e tutte le utility necessarie
 #RUN add-apt-repository ppa:mc3man/trusty-media
 RUN apt-get update
-RUN DEBIAN_FRONTEND=noninteractive apt-get install --assume-yes vim nano less mc sudo unoconv imagemagick apache2 mariadb-server subversion inkscape ghostscript antiword poppler-utils postfix libimage-exiftool-perl cron wget php php-dev php-gd php-mysql php-curl php-mbstring php-zip libapache2-mod-php ffmpeg libgs-dev antiword zip python3-uno libreoffice-writer libreoffice-draw libreoffice-calc libreoffice-impress libreoffice-base-core libreoffice-core libreoffice-pdfimport libreoffice-avmedia-backend-gstreamer libreoffice-math libglu1-mesa
+RUN DEBIAN_FRONTEND=noninteractive apt-get install --assume-yes curl vim nano less mc sudo unoconv imagemagick apache2 mariadb-server subversion inkscape ghostscript antiword poppler-utils postfix libimage-exiftool-perl cron wget php php-dev php-gd php-mysql php-curl php-mbstring php-zip libapache2-mod-php ffmpeg libgs-dev antiword zip python3-uno libreoffice-writer libreoffice-draw libreoffice-calc libreoffice-impress libreoffice-base-core libreoffice-core libreoffice-pdfimport libreoffice-avmedia-backend-gstreamer libreoffice-math libglu1-mesa
  
 #configurazione PHP
 RUN sed -i -e "s/upload_max_filesize\s*=\s*2M/upload_max_filesize = 8G/g" /etc/php/7.4/apache2/php.ini
@@ -98,7 +98,8 @@ RUN echo '$collection_download_settings[0]["mime"] = "application/zip";' >> /var
 RUN mkdir /backupdb
 RUN chmod 666 /backupdb
 RUN echo '#!/bin/bash' > /backupdb.sh
-RUN echo 'mysqldump resourcespace | gzip -9 > /var/lib/mysql/resourcespace.sql.gz' >> /backupdb.sh
+RUN echo 'mysqldump resourcespace --no-data --skip-set-charset > /backupdb/resourcespace_schema.sql' >> /backupdb.sh
+RUN echo 'mysqldump resourcespace --no-create-db --no-create-info --skip-set-charset --resultfile=/backupdb/resourcespace_data.sql' >> /backupdb.sh
 RUN echo 'cp /var/lib/htm/include/config.php /backupdb' >> /backupdb.sh
 RUN echo '#!/bin/bash' > /resourcespacetask.sh
 RUN echo 'wget http://localhost/batch/cron.php > /tmp/resourcespacetask.lastrun.log' >> /resourcespacetask.sh
