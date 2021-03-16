@@ -99,7 +99,7 @@ RUN mkdir /backupdb
 RUN chmod 666 /backupdb
 RUN echo '#!/bin/bash' > /backupdb.sh
 RUN echo 'mysqldump resourcespace --no-data --skip-set-charset > /backupdb/resourcespace_schema.sql' >> /backupdb.sh
-RUN echo 'mysqldump resourcespace --no-create-db --no-create-info --skip-set-charset --resultfile=/backupdb/resourcespace_data.sql' >> /backupdb.sh
+RUN echo 'mysqldump resourcespace --no-create-db --no-create-info --skip-set-charset --result-file=/backupdb/resourcespace_data.sql' >> /backupdb.sh
 RUN echo 'cp /var/lib/htm/include/config.php /backupdb' >> /backupdb.sh
 RUN echo '#!/bin/bash' > /resourcespacetask.sh
 RUN echo 'wget http://localhost/batch/cron.php > /tmp/resourcespacetask.lastrun.log' >> /resourcespacetask.sh
